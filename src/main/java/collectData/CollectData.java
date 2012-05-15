@@ -4,6 +4,7 @@
  */
 package collectData;
 
+import bdb.MyBDB;
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -36,8 +37,12 @@ public class CollectData extends HttpServlet {
         String userId = jason.get("userId").toString();
         for (Object object : items) {
             JSONObject item = (JSONObject) object;
-            String name = item.get("name").toString();
+            String itemId = item.get("name").toString();
             String value = item.get("value").toString();
+            if(value.equals("0"))
+                MyBDB.getBDB().putInteresting(userId, itemId);
+            else if(value.equals("1"))
+                MyBDB.getBDB().putBoring(userId, itemId);
         }
     }
 

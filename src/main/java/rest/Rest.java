@@ -5,6 +5,7 @@
 package rest;
 
 
+
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
@@ -15,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -105,7 +107,30 @@ public class Rest {
     public String getMyId() {
         return myId;
     }
-
+    
+    public String getPhoto(String photoURL)
+    {
+        StringBuffer b = new StringBuffer();
+        try {
+            HttpGet get = new HttpGet(photoURL.replace(" ", "%20"));
+            HttpResponse response;
+            get.setHeader("Authorization", accessToken);
+            response = httpclient.execute(get);
+            InputStreamReader is = new InputStreamReader(response.getEntity().getContent());
+            
+            int ch;
+            while ((ch = is.read()) != -1) {
+                b.append((char)ch);
+            }
+   
+        } catch (ClientProtocolException ex) {
+            Logger.getLogger(Rest.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(Rest.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return new String(Base64.encodeBase64(b.toString().getBytes()));
+    }
+    
     public Map<String, JSONObject> getFeedItems() {
         JSONObject json;
         JSONArray jItems = new JSONArray();
@@ -158,5 +183,10 @@ public class Rest {
             input = s0 + "GMT" + s1;
         }        
         return df.parse( input ).getTime();        
+    }
+    
+    public String getAccessToken()
+    {
+        return this.accessToken;
     }
 }

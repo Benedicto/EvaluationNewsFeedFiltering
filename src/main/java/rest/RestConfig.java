@@ -15,6 +15,10 @@ public class RestConfig {
     private final String tokenURL;
     private final String authURL;
     
+    public static final RestConfig developerForceREST = new RESTAppBuilder().client_id("3MVG9rFJvQRVOvk6sl7xMXtrbya4bOKG3sXQYU7cevDtXtX0jrtRwA1PvF9pXdSwbVOV9PrtMHSBZJfAQrKuo").redirect_uri("https://localhost:8443/EvaluationNewsFeedFiltering/home.jsp").client_secret("8020070739192617674").tokenURL("https://login.salesforce.com/services/oauth2/token").authURL("https://login.salesforce.com/services/oauth2/authorize").build();
+    public static final RestConfig gusREST = new RESTAppBuilder().client_id("3MVG92.uWdyphVj6UxPnhEXcGWPpVRheELsx9An.CZdCuUVSiepPic6SwD6b59JXDtrfbkCkJRDtQZJc_n6dN").redirect_uri("https://10.132.35.241:8443/EvaluationNewsFeedFiltering/home.jsp").client_secret("9014937268783936461").tokenURL("https://gus.salesforce.com/services/oauth2/token").authURL("https://gus.salesforce.com/services/oauth2/authorize").build();
+    public static final RestConfig currentREST = developerForceREST;
+    
     private RestConfig(RESTAppBuilder builder)
     {
         this.client_id = builder.client_id;
@@ -102,7 +106,5 @@ public class RestConfig {
         }
     }
     
-    public static final RestConfig developerForceREST = new RESTAppBuilder().client_id("3MVG9rFJvQRVOvk6sl7xMXtrbya4bOKG3sXQYU7cevDtXtX0jrtRwA1PvF9pXdSwbVOV9PrtMHSBZJfAQrKuo").redirect_uri("https://localhost:8443/EvaluationNewsFeedFiltering/home.jsp").client_secret("8020070739192617674").tokenURL("https://login.salesforce.com/services/oauth2/token").authURL("https://login.salesforce.com/services/oauth2/authorize").build();
-    public static final RestConfig gusREST = new RESTAppBuilder().client_id("3MVG92.uWdyphVj6UxPnhEXcGWPpVRheELsx9An.CZdCuUVSiepPic6SwD6b59JXDtrfbkCkJRDtQZJc_n6dN").redirect_uri("https://10.132.35.240:8443/EvaluationNewsFeedFiltering/").client_secret("9014937268783936461").tokenURL("https://gus.salesforce.com/services/oauth2/token").authURL("https://gus.salesforce.com/services/oauth2/authorize").build();
-    public static final RestConfig currentREST = developerForceREST;
+    
 }

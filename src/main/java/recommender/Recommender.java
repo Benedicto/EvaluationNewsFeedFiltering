@@ -8,22 +8,24 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import newsRanking.Ranking;
+import nlp.StanfordNLP;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import nlp.StanfordNLP;
 
 /**
  *
  * @author XZH
  */
 public class Recommender {
+    static MyBDB myBDB = MyBDB.getBDB();
+    
     public static Set<String> getRecommendation(String userId, Map<String, JSONObject> candidateItems)
     {
-        Set<String> markeditems = MyBDB.getMarkedItems(userId);
+        Set<String> markeditems = myBDB.getMarkedItems(userId);
         for(String item : markeditems)
             candidateItems.remove(item);
         Map<String, Map<String,Double>> candidates = transformCandidates(candidateItems);
-        return Ranking.selectBestSet(null, MyBDB.getSelfProfile(userId), 5);
+        return Ranking.selectBestSet(candidates, myBDB.getSelfProfile(userId), 5);
     }
     
     private static Map<String, Map<String,Double>> transformCandidates(Map<String, JSONObject> candidateItems)

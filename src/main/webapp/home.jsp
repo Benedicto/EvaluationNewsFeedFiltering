@@ -23,7 +23,7 @@
         session.setAttribute("rest", rest);
         session.setAttribute("candidates", candidateItems);
     }
-    String userId = rest.getMyId();    
+    String userId = rest.getMyId();
     Set<String> selected = Recommender.getRecommendation(userId, candidateItems);
 %>
 <!DOCTYPE html>
@@ -91,11 +91,13 @@
                         checked += 1;
                     }
                 });
-                if(checked < 5)
+                if(checked < <%=selected.size()%>)
                     valid = false;
                 else
                     valid = true;
             }
+            
+            
         </script>
         <title>Recommendation</title>
     </head>
@@ -112,15 +114,16 @@
             <%
                 for (String id : selected) {
                     JSONObject item = candidateItems.get(id);
-                    String photoUrl = item.get("photoUrl").toString();
+                    String photoUrl = item.get("photoUrl").toString()+"?oauth_token="+rest.getAccessToken();
                     String body = ((JSONObject) item.get("body")).get("text").toString();
+                    String photo = rest.getPhoto(photoUrl);
             %>
             <div class="zen-box zen-standardBackground zen-simple center" style="width:400px">
                 <div class="zen-inner">
                     <div class="zen-body">
                         <div class="zen-media">
                             <a class="zen-img" href="javascript:void(0);">
-                                <img src=<%=photoUrl%> alt="sample image">
+                                <img src="data:image/png;base64,<%=photo%>" alt="sample image">
                             </a>
                             <div class="zen-mediaBody">
                                 <%=body%>
@@ -132,11 +135,11 @@
             <div class="zen-footer">
                 <fieldset class="zen-checkGroup">                       
                     <label for="<%=id + "0"%>">
-                        <input type="radio" name="<%=id%>" id="<%=id + "0"%>" value="0">
+                        <input type="radio" name="<%=id%>" id="<%=id + "0"%>" value=0>
                         Interesting
                     </label>                       
                     <label for="<%=id + "1"%>">
-                        <input type="radio" name="<%=id%>" id="<%=id + "1"%>" value="1">
+                        <input type="radio" name="<%=id%>" id="<%=id + "1"%>" value=1>
                         Not so interesting
                     </label>
                 </fieldset>
