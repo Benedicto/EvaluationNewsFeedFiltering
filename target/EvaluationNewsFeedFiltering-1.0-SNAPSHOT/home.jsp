@@ -4,6 +4,7 @@
     Author     : XZH
 --%>
 
+<%@page import="java.util.Set"%>
 <%@page import="java.util.Map"%>
 <%@page import="java.util.logging.Logger"%>
 <%@page import="java.io.IOException"%>
@@ -14,13 +15,15 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%
     Rest rest = (Rest) session.getAttribute("rest");
+    Map<String, JSONObject> candidateItems = (Map<String, JSONObject>)session.getAttribute("candidates");
     if (rest == null) {
         Rest.setTimeFrame(8);
         rest = new Rest(request.getParameter("code"));
+        candidateItems = rest.getFeedItems();
         session.setAttribute("rest", rest);
+        session.setAttribute("candidates", candidateItems);
     }
-    String userId = rest.getMyId();
-    Map<String, JSONObject> candidateItems = rest.getFeedItems();
+    String userId = rest.getMyId();    
     Set<String> selected = Recommender.getRecommendation(userId, candidateItems);
 %>
 <!DOCTYPE html>
@@ -107,9 +110,8 @@
                 </div>
             </div>
             <%
-                for (Map.Entry<String,JSONObject> e : items.entrySet()) {
-                    String id = e.getKey();
-                    JSONObject item = e.getValue();
+                for (String id : selected) {
+                    JSONObject item = candidateItems.get(id);
                     String photoUrl = item.get("photoUrl").toString();
                     String body = ((JSONObject) item.get("body")).get("text").toString();
             %>
