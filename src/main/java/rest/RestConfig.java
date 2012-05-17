@@ -104,7 +104,5 @@ public class RestConfig {
         {
             return new RestConfig(this);
         }
-    }
-    
-    
+    }    
 }

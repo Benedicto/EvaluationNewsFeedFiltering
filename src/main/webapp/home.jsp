@@ -16,13 +16,6 @@
 <%
     Rest rest = (Rest) session.getAttribute("rest");
     Map<String, JSONObject> candidateItems = (Map<String, JSONObject>)session.getAttribute("candidates");
-    if (rest == null) {
-        Rest.setTimeFrame(8);
-        rest = new Rest(request.getParameter("code"));
-        candidateItems = rest.getFeedItems();
-        session.setAttribute("rest", rest);
-        session.setAttribute("candidates", candidateItems);
-    }
     String userId = rest.getMyId();
     Set<String> selected = Recommender.getRecommendation(userId, candidateItems);
 %>
