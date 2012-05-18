@@ -38,7 +38,7 @@ public class homeFilter implements Filter
     {
     }
 
-    private void doBeforeProcessing(ServletRequest request, ServletResponse response)
+    private boolean doBeforeProcessing(ServletRequest request, ServletResponse response)
             throws IOException, ServletException
     {
         if (debug)
@@ -50,7 +50,7 @@ public class homeFilter implements Filter
         if (session == null)
         {
             ((HttpServletResponse) response).sendRedirect("index.jsp");
-            return;
+            return false;
         }
         Rest rest = (Rest) session.getAttribute("rest");
         if (rest == null)
@@ -59,12 +59,13 @@ public class homeFilter implements Filter
             if (code == null)
             {
                 ((HttpServletResponse) response).sendRedirect("index.jsp");
-                return;
+                return false;
             }
             rest = new Rest(code);
             session.setAttribute("rest", rest);
             session.setAttribute("candidates", rest.getFeedItems());
         }
+        return true;
     }
 
     private void doAfterProcessing(ServletRequest request, ServletResponse response)
@@ -116,7 +117,9 @@ public class homeFilter implements Filter
             log("homeFilter:doFilter()");
         }
 
-        doBeforeProcessing(request, response);
+        boolean goon = doBeforeProcessing(request, response);
+        
+        if(!goon) return;
 
         Throwable problem = null;
         try

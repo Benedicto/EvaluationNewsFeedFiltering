@@ -5,11 +5,9 @@
 package listener;
 
 import bdb.MyBDB;
-import java.util.HashMap;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
-import nlp.NLP;
 
 /**
  * Web application lifecycle listener.
@@ -21,8 +19,8 @@ public class MyContextListener implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        //NLP.process("", new HashMap<String,Double>(), new HashMap<String,Double>());
-        System.out.println("Stanford NLP is initialized!");
+//        NLP.process("", new HashMap<String,Double>(), new HashMap<String,Double>());
+//        System.out.println("Stanford NLP is initialized!");
     }
 
     @Override

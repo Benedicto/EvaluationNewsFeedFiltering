@@ -4,13 +4,8 @@
  */
 package rest;
 
-
-
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.io.*;
+import java.net.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -43,11 +38,16 @@ public class Rest {
     static String tokenURL = currentREST.getTokenURL();
     static HttpClient httpclient = new DefaultHttpClient();
     static final long oneWeek = 604800000L;
-    static long timeFrame = oneWeek * 4;
-    static SimpleDateFormat df = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ssz" );
-    static long timeFrame() { return timeFrame; }
-    public static void setTimeFrame(int weeks) {timeFrame = oneWeek * weeks;}
-    
+    static long timeFrame = oneWeek * 12;
+    static SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssz");
+
+    static long timeFrame() {
+        return timeFrame;
+    }
+
+    public static void setTimeFrame(int weeks) {
+        timeFrame = oneWeek * weeks;
+    }
     String accessToken = null;
     String instanceURL = null;
     String myId = null;
@@ -87,7 +87,7 @@ public class Rest {
             params.add(new BasicNameValuePair("client_secret", client_secret));
             params.add(new BasicNameValuePair("grant_type", "password"));
             params.add(new BasicNameValuePair("username", username));
-            params.add(new BasicNameValuePair("password", password + "KOjKGsG6wwdhxdcjO3NO01wph"));
+            params.add(new BasicNameValuePair("password", password));// + "KOjKGsG6wwdhxdcjO3NO01wph"));
 
             post.setEntity(new UrlEncodedFormEntity(params));
 
@@ -107,31 +107,51 @@ public class Rest {
     public String getMyId() {
         return myId;
     }
-    
-    public String getPhoto(String photoURL)
-    {
-        StringBuffer b = new StringBuffer();
+
+    public void getPhoto(String photoUrl) {
+        InputStream is = null;
         try {
-            HttpGet get = new HttpGet(photoURL.replace(" ", "%20"));
-            HttpResponse response;
-            get.setHeader("Authorization", accessToken);
-            response = httpclient.execute(get);
-            InputStreamReader is = new InputStreamReader(response.getEntity().getContent());
+            URL url = new URL(photoUrl + "?oauth_token=" + this.getAccessToken());
+            //URL url = new URL("https://c.na14.salesforce.com/profilephoto/005/T"+ "?oauth_token=" + this.getAccessToken());
             
-            int ch;
-            while ((ch = is.read()) != -1) {
-                b.append((char)ch);
+            //URL url = new URL("https://www.google.com/logos/2012/d4g12-hp.jpg");//download from goole succeeded.
+            URLConnection urlConnection = url.openConnection();
+            System.out.println(url.toString());
+
+
+            BufferedInputStream in = new BufferedInputStream(urlConnection.getInputStream());
+            BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream("image.png"));
+
+            int i;
+            while ((i = in.read()) != -1) {
+                out.write(i);
             }
-   
-        } catch (ClientProtocolException ex) {
+            out.flush();
+
+            out.close();
+            in.close();
+            
+//            HttpGet get = new HttpGet();           
+//            get.setHeader("Authorization", accessToken);
+//            Object URL = "/services/data/v24.0/chatter/users/me/photo";
+//            get.setURI(new URI(this.instanceURL + URL.toString()));
+//            HttpResponse response = httpclient.execute(get);
+//            JSONObject json = (JSONObject) JSONValue.parse(new InputStreamReader(response.getEntity().getContent()));
+//            System.out.println(json.get("smallPhotoUrl"));
+//            System.out.println(json.get("largePhotoUrl"));
+        } 
+//        catch (URISyntaxException ex) {
+//            Logger.getLogger(Rest.class.getName()).log(Level.SEVERE, null, ex);
+//        } 
+        catch (MalformedURLException ex) {
             Logger.getLogger(Rest.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(Rest.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return new String(Base64.encodeBase64(b.toString().getBytes()));
     }
-    
+
     public Map<String, JSONObject> getFeedItems() {
+        System.out.println("get items start: " + new Date());
         JSONObject json;
         JSONArray jItems = new JSONArray();
         Map<String, JSONObject> items = new HashMap<String, JSONObject>();
@@ -148,19 +168,19 @@ public class Rest {
                 response = httpclient.execute(get);
                 json = (JSONObject) JSONValue.parse(new InputStreamReader(response.getEntity().getContent()));
                 jItems.addAll((JSONArray) json.get("items"));
-                JSONObject j = (JSONObject)jItems.get(jItems.size()-1);
+                JSONObject j = (JSONObject) jItems.get(jItems.size() - 1);
                 then = Rest.parse(j.get("modifiedDate").toString());
                 URL = json.get("nextPageUrl");
-            } while (URL != null  && now - then < Rest.timeFrame());           
-            
-            for(Object o : jItems)
-            {
-                JSONObject j = (JSONObject)o;
+            } while (URL != null && now - then < Rest.timeFrame());
+
+            for (Object o : jItems) {
+                JSONObject j = (JSONObject) o;
                 then = Rest.parse(j.get("modifiedDate").toString());
-                if(now - then < Rest.timeFrame())
-                    items.put(j.get("id").toString(),j);
+                if (now - then < Rest.timeFrame()) {
+                    items.put(j.get("id").toString(), j);
+                }
             }
-            
+
         } catch (ParseException ex) {
             Logger.getLogger(Rest.class.getName()).log(Level.SEVERE, null, ex);
         } catch (URISyntaxException ex) {
@@ -170,23 +190,23 @@ public class Rest {
         } catch (IOException ex) {
             Logger.getLogger(Rest.class.getName()).log(Level.SEVERE, null, ex);
         }
+        System.out.println("get items finish: " + new Date());
         return items;
     }
-    
-    private static long parse( String input ) throws java.text.ParseException {
-        if ( input.endsWith( "Z" ) ) {
-            input = input.substring( 0, input.length() - 5) + "GMT-00:00";
+
+    private static long parse(String input) throws java.text.ParseException {
+        if (input.endsWith("Z")) {
+            input = input.substring(0, input.length() - 5) + "GMT-00:00";
         } else {
-            int inset = 6;        
-            String s0 = input.substring( 0, input.length() - inset );
-            String s1 = input.substring( input.length() - inset, input.length() );
+            int inset = 6;
+            String s0 = input.substring(0, input.length() - inset);
+            String s1 = input.substring(input.length() - inset, input.length());
             input = s0 + "GMT" + s1;
-        }        
-        return df.parse( input ).getTime();        
+        }
+        return df.parse(input).getTime();
     }
-    
-    public String getAccessToken()
-    {
+
+    public String getAccessToken() {
         return this.accessToken;
     }
 }

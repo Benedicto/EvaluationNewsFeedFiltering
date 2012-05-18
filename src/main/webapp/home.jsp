@@ -18,6 +18,7 @@
     Map<String, JSONObject> candidateItems = (Map<String, JSONObject>)session.getAttribute("candidates");
     String userId = rest.getMyId();
     Set<String> selected = Recommender.getRecommendation(userId, candidateItems);
+    if(selected.size()==0) response.sendRedirect("thankyouverymuch.html");
 %>
 <!DOCTYPE html>
 <html>
@@ -63,7 +64,9 @@
                         jasonObject.items.push({name:this.name,value:this.value});
                     }
                 });
+                $.ajaxSetup({async:false});
                 $.post("collectData", JSON.stringify(jasonObject));
+                $.ajaxSetup({async:true});
             }
 
             function validate()
@@ -101,22 +104,22 @@
                 <div class="zen-inner">
                     <div class="zen-header">
                         <h4 align="center">Chatter News Feed Recommender</h4>
+                        <p align="center">If the user profile images are not displayed,<br/>please open another tab, log in GUS and refresh this page.</p>
                     </div>
                 </div>
             </div>
             <%
                 for (String id : selected) {
                     JSONObject item = candidateItems.get(id);
-                    String photoUrl = item.get("photoUrl").toString()+"?oauth_token="+rest.getAccessToken();
+                    String photoUrl = item.get("photoUrl").toString();
                     String body = ((JSONObject) item.get("body")).get("text").toString();
-                    String photo = rest.getPhoto(photoUrl);
             %>
             <div class="zen-box zen-standardBackground zen-simple center" style="width:400px">
                 <div class="zen-inner">
                     <div class="zen-body">
                         <div class="zen-media">
                             <a class="zen-img" href="javascript:void(0);">
-                                <img src="data:image/png;base64,<%=photo%>" alt="sample image">
+                                <img src="<%=photoUrl%>" alt="sample image">
                             </a>
                             <div class="zen-mediaBody">
                                 <%=body%>

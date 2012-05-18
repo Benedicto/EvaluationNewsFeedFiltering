@@ -4,10 +4,7 @@
  */
 package recommender;
 import bdb.MyBDB;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import newsRanking.Ranking;
 import nlp.NLP;
 import org.json.simple.JSONArray;
@@ -25,7 +22,10 @@ public class Recommender {
             candidateItems.remove(item);
         Map<String, Map<String,Double>> candidatesALL = new HashMap<String, Map<String,Double>>();
         Map<String, Map<String,Double>> candidatesNER = new HashMap<String, Map<String,Double>>();
+        
+        System.out.println("nlp processing for items start: " + new Date());
         transformCandidates(candidateItems,candidatesALL,candidatesNER);
+        System.out.println("nlp processing for items end: " + new Date());
         
         //choose NER or all words
         Map<String, Map<String,Double>> candidates;
@@ -38,12 +38,18 @@ public class Recommender {
         //choose which profile to use
         Map<String, Double> profile = chooseProfile(userId, useNER);
         
-        return Ranking.selectBestSet(candidates, profile, 5);
+        System.out.println("select items start: " + new Date());
+        Set<String> result = Ranking.selectBestSet(candidates, profile, 5);
+        System.out.println("select items end: " + new Date());
+        return result;
     }
     
     private static Map<String, Double> chooseProfile(String userId, boolean useNER) {
         Map<String, Double> profile = null;
         int choice = (int) (Math.random() * 8); //choice will be one of {0,1,2,3,4,5,6,7}
+        
+        choice = 4; // demo stage, always use selfProfile
+        
         if (choice > 3) {
             if (useNER) {
                 profile = MyBDB.getBDB().getSelfProfileNER(userId);
