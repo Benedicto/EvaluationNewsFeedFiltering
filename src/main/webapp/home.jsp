@@ -104,7 +104,7 @@
                 <div class="zen-inner">
                     <div class="zen-header">
                         <h4 align="center">Chatter News Feed Recommender</h4>
-                        <p align="center">If the user profile images are not displayed,<br/>please open another tab, log in GUS and refresh this page.</p>
+                        <p align="center">If the user profile images are not displayed,<br/>Please open another tab, log in GUS and refresh this page.</p>
                     </div>
                 </div>
             </div>
