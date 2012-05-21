@@ -89,7 +89,7 @@ public class Recommender {
         JSONArray comments = (JSONArray)(((JSONObject)item.get("comments")).get("comments"));
         for(Object o : comments)
         {
-            sb.append(((JSONObject)o).get("body").toString());
+            sb.append(((JSONObject)((JSONObject)o).get("body")).get("text").toString());
         }
         all = new HashMap<String,Double>();
         ner = new HashMap<String,Double>();

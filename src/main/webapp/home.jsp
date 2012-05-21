@@ -15,10 +15,12 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%
     Rest rest = (Rest) session.getAttribute("rest");
-    Map<String, JSONObject> candidateItems = (Map<String, JSONObject>)session.getAttribute("candidates");
+    Map<String, JSONObject> candidateItems = (Map<String, JSONObject>) session.getAttribute("candidates");
     String userId = rest.getMyId();
     Set<String> selected = Recommender.getRecommendation(userId, candidateItems);
-    if(selected.size()==0) response.sendRedirect("thankyouverymuch.html");
+    if (selected.size() == 0) {
+        response.sendRedirect("thankyouverymuch.html");
+    }
 %>
 <!DOCTYPE html>
 <html>
@@ -88,7 +90,7 @@
                     }
                 });
                 if(checked < <%=selected.size()%>)
-                    valid = false;
+                valid = false;
                 else
                     valid = true;
             }
@@ -104,7 +106,7 @@
                 <div class="zen-inner">
                     <div class="zen-header">
                         <h4 align="center">Chatter News Feed Recommender</h4>
-                        <p align="center">If the user profile images are not displayed,<br/>Please open another tab, log in GUS and refresh this page.</p>
+                        <p align="center">If the user images are not displayed properly,<br/>Please open another tab, log in GUS and refresh this page.</p>
                     </div>
                 </div>
             </div>
@@ -113,33 +115,68 @@
                     JSONObject item = candidateItems.get(id);
                     String photoUrl = item.get("photoUrl").toString();
                     String body = ((JSONObject) item.get("body")).get("text").toString();
+                    String actorName = ((JSONObject) item.get("actor")).get("name").toString();
             %>
             <div class="zen-box zen-standardBackground zen-simple center" style="width:400px">
                 <div class="zen-inner">
                     <div class="zen-body">
                         <div class="zen-media">
                             <a class="zen-img" href="javascript:void(0);">
-                                <img src="<%=photoUrl%>" alt="sample image">
+                                <img src="<%=photoUrl%>">
                             </a>
-                            <div class="zen-mediaBody">
-                                <%=body%>
+                            <div class="zen-mediaBody" style="max-width:321px; word-wrap:break-word">
+                                <span class="actor"> <%=actorName%> </span>  <%=body%>
+                                <%
+                                    JSONArray comments = (JSONArray) (((JSONObject) item.get("comments")).get("comments"));
+                                    if (comments.size() != 0) {
+                                %>                                
+                                <div class="zen-commentList">
+                                    <b class="zen-arrowUp"></b>
+                                    <ul>
+                                        <%
+                                            for (Object o : comments) {
+                                                JSONObject comment = (JSONObject) o;
+                                                String commentBody = ((JSONObject) comment.get("body")).get("text").toString();
+                                                JSONObject user = (JSONObject) comment.get("user");
+                                                String commenterPhotoUrl = ((JSONObject) user.get("photo")).get("smallPhotoUrl").toString();
+                                                String commenterName = user.get("name").toString();
+                                        %>
+                                        <li>
+                                            <div class="zen-media">
+                                                <a class="zen-img" href="javascript:void(0);" >
+                                                    <img src="<%=commenterPhotoUrl%>" style="width:30px;height:30px">
+                                                </a>
+                                                <div class="zen-mediaBody" style="max-width:271px; word-wrap:break-word">
+                                                    <span class="actor"> <%=commenterName%> </span> <%=commentBody%>
+                                                </div>
+                                            </div>
+                                        </li>
+                                        <%
+                                            }
+                                        %>
+                                    </ul>
+                                </div>
+                                <%
+                                    }
+                                %>
                             </div>
                         </div>
                     </div>
-                </div>            
+                </div>
+                <div class="zen-footer">
+                    <fieldset class="zen-checkGroup">                       
+                        <label for="<%=id + "0"%>">
+                            <input type="radio" name="<%=id%>" id="<%=id + "0"%>" value=0>
+                            Interesting
+                        </label>                       
+                        <label for="<%=id + "1"%>">
+                            <input type="radio" name="<%=id%>" id="<%=id + "1"%>" value=1>
+                            Not so interesting
+                        </label>
+                    </fieldset>
+                </div>
             </div>
-            <div class="zen-footer">
-                <fieldset class="zen-checkGroup">                       
-                    <label for="<%=id + "0"%>">
-                        <input type="radio" name="<%=id%>" id="<%=id + "0"%>" value=0>
-                        Interesting
-                    </label>                       
-                    <label for="<%=id + "1"%>">
-                        <input type="radio" name="<%=id%>" id="<%=id + "1"%>" value=1>
-                        Not so interesting
-                    </label>
-                </fieldset>
-            </div>
+
             <%
                 }
             %>
