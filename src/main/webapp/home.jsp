@@ -95,7 +95,14 @@
                     valid = true;
             }
             
-            
+            $(document).ready(function(){
+                $('#feedback').on('click',changeSelection);
+            });
+ 
+            function changeSelection()
+            {
+                this.innerHTML="what";
+            }
         </script>
         <title>Recommendation</title>
     </head>
@@ -106,7 +113,13 @@
                 <div class="zen-inner">
                     <div class="zen-header">
                         <h4 align="center">Chatter News Feed Recommender</h4>
-                        <p align="center">If the user images are not displayed properly,<br/>Please open another tab, log in GUS and refresh this page.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="zen-box zen-simple center" style="width:400px">
+                <div class="zen-inner">
+                    <div class="zen-body">
+                        <p><span style="font-weight:bold">Note</span>: If the user images are not displayed properly or not displayed at all, please log in GUS in a separate page and refresh this page.</p>
                     </div>
                 </div>
             </div>
@@ -163,10 +176,11 @@
                         </div>
                     </div>
                 </div>
-                <div class="zen-footer">
-                    <fieldset class="zen-checkGroup">                       
+                <hr class="zen-divider" />
+                <div class="zen-footer" style="position:relative; height:3em;">
+                    <fieldset class="zen-checkGroup radioBig" style="line-height:3em; ">                       
                         <label for="<%=id + "0"%>">
-                            <input type="radio" name="<%=id%>" id="<%=id + "0"%>" value=0>
+                            <input type="radio" name="<%=id%>" id="<%=id + "0"%>" value=0 vertical-align: middle>
                             Interesting
                         </label>                       
                         <label for="<%=id + "1"%>">

@@ -15,7 +15,17 @@ root {
     margin-right: auto;
 }
 
+.zen .verticallyCenter{
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
 .zen .actor{
     color: #015BA7;
     font-weight: bold;
+}
+
+.zen .radioBig
+{
+    height: 1.25em;
 }
