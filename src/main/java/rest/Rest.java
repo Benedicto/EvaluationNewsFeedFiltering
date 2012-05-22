@@ -38,7 +38,7 @@ public class Rest {
     static String tokenURL = currentREST.getTokenURL();
     static HttpClient httpclient = new DefaultHttpClient();
     static final long oneWeek = 604800000L;
-    static long timeFrame = oneWeek * 12;
+    static long timeFrame = oneWeek;
     static SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssz");
 
     static long timeFrame() {
@@ -69,7 +69,7 @@ public class Rest {
             accessToken = "OAuth " + (String) json.get("access_token");
             instanceURL = (String) json.get("instance_url");
             String logInId = json.get("id").toString();
-            myId = logInId.substring(logInId.indexOf("005d"));
+            myId = logInId.substring(logInId.indexOf("005"));
         } catch (ClientProtocolException ex) {
             Logger.getLogger(Rest.class.getName()).log(Level.SEVERE, null, ex);
         } catch (UnsupportedEncodingException ex) {
@@ -95,6 +95,8 @@ public class Rest {
             JSONObject json = (JSONObject) JSONValue.parse(new InputStreamReader(resp.getEntity().getContent()));
             accessToken = "OAuth " + (String) json.get("access_token");
             instanceURL = (String) json.get("instance_url");
+            String logInId = json.get("id").toString();
+            myId = logInId.substring(logInId.indexOf("005"));
         } catch (ClientProtocolException ex) {
             Logger.getLogger(Rest.class.getName()).log(Level.SEVERE, null, ex);
         } catch (UnsupportedEncodingException ex) {
@@ -160,7 +162,7 @@ public class Rest {
             HttpResponse response;
             get.setHeader("Authorization", accessToken);
 
-            Object URL = "/services/data/v24.0/chatter/feeds/news/me/feed-items?pageSize=100";
+            Object URL = "/services/data/v24.0/chatter/feeds/news/me/feed-items?pageSize=25";
             long now = new Date().getTime();
             long then;
             do {
@@ -191,6 +193,7 @@ public class Rest {
             Logger.getLogger(Rest.class.getName()).log(Level.SEVERE, null, ex);
         }
         System.out.println("get items finish: " + new Date());
+        System.out.println("number of items: " + items.size());
         return items;
     }
 

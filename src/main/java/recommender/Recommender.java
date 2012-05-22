@@ -3,8 +3,12 @@
  * and open the template in the editor.
  */
 package recommender;
+
 import bdb.MyBDB;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import newsRanking.Ranking;
 import nlp.NLP;
 import org.json.simple.JSONArray;
@@ -15,11 +19,14 @@ import org.json.simple.JSONObject;
  * @author XZH
  */
 public class Recommender {
-    public static Set<String> getRecommendation(String userId, Map<String, JSONObject> candidateItems)
+    public static Set<String> getRecommendation(String userId, Map<String, JSONObject> candidateItems, int size)
     {
         Set<String> markeditems = MyBDB.getBDB().getMarkedItems(userId);
+        
+        //remove items already marked by the user
         for(String item : markeditems)
             candidateItems.remove(item);
+        
         Map<String, Map<String,Double>> candidatesALL = new HashMap<String, Map<String,Double>>();
         Map<String, Map<String,Double>> candidatesNER = new HashMap<String, Map<String,Double>>();
         
@@ -29,7 +36,9 @@ public class Recommender {
         
         //choose NER or all words
         Map<String, Map<String,Double>> candidates;
-        boolean useNER = (Math.random() < 0.5);
+        
+        //NER is turned off because it is too slow
+        boolean useNER = false;
         if(useNER)
             candidates = candidatesNER;
         else
@@ -37,9 +46,10 @@ public class Recommender {
         
         //choose which profile to use
         Map<String, Double> profile = chooseProfile(userId, useNER);
+        System.out.println("profile size:"+profile.size());
         
         System.out.println("select items start: " + new Date());
-        Set<String> result = Ranking.selectBestSet(candidates, profile, 5);
+        Set<String> result = Ranking.selectBestSet(candidates, profile, size);
         System.out.println("select items end: " + new Date());
         return result;
     }
@@ -47,9 +57,8 @@ public class Recommender {
     private static Map<String, Double> chooseProfile(String userId, boolean useNER) {
         Map<String, Double> profile = null;
         int choice = (int) (Math.random() * 8); //choice will be one of {0,1,2,3,4,5,6,7}
-        
-        choice = 4; // demo stage, always use selfProfile
-        
+    
+        //right now there is only self profile or followee profile
         if (choice > 3) {
             if (useNER) {
                 profile = MyBDB.getBDB().getSelfProfileNER(userId);

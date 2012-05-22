@@ -43,6 +43,8 @@ public class CollectData extends HttpServlet {
                 MyBDB.getBDB().putInteresting(userId, itemId);
             else if(value.equals("1"))
                 MyBDB.getBDB().putBoring(userId, itemId);
+            else if(value.equals("2"))
+                MyBDB.getBDB().putDontKnow(userId, itemId);
         }
     }
 

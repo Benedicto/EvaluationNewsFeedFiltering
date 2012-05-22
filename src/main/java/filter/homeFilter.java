@@ -8,17 +8,10 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Map;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import org.json.simple.JSONObject;
 import rest.Rest;
 
 /**
@@ -56,12 +49,22 @@ public class homeFilter implements Filter
         if (rest == null)
         {
             String code = request.getParameter("code");
-            if (code == null)
+            String username = request.getParameter("username");
+            String password = request.getParameter("password");
+            if (code != null)
+            {
+                rest = new Rest(code);
+            }
+            else if(username != null && password != null)
+            {
+                rest = new Rest(username, password);        
+            }
+            else
             {
                 ((HttpServletResponse) response).sendRedirect("index.jsp");
                 return false;
             }
-            rest = new Rest(code);
+            
             session.setAttribute("rest", rest);
             session.setAttribute("candidates", rest.getFeedItems());
         }

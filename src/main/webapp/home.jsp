@@ -17,7 +17,7 @@
     Rest rest = (Rest) session.getAttribute("rest");
     Map<String, JSONObject> candidateItems = (Map<String, JSONObject>) session.getAttribute("candidates");
     String userId = rest.getMyId();
-    Set<String> selected = Recommender.getRecommendation(userId, candidateItems);
+    Set<String> selected = Recommender.getRecommendation(userId, candidateItems, 15);
     if (selected.size() == 0) {
         response.sendRedirect("thankyouverymuch.html");
     }
@@ -36,23 +36,14 @@
             
             function more()
             {
-                validateData();
-                if(valid)
-                {
-                    submitData();
-                    $("#myform").attr("action","home.jsp");
-                }                
+                submitData();
+                $("#myform").attr("action","home.jsp");                           
             }
             
             function finish()
             {
-                validateData();
-                if(valid)
-                {
-                    submitData();
-                    $("#myform").attr("action","thankyou.html");
-                }
-                
+                submitData();
+                $("#myform").attr("action","thankyou.html");                           
             }
             
             function submitData()
@@ -65,36 +56,16 @@
                     {                      
                         jasonObject.items.push({name:this.name,value:this.value});
                     }
+                    else
+                    {
+                        jasonObject.items.push({name:this.name,value:2});
+                    }
                 });
                 $.ajaxSetup({async:false});
                 $.post("collectData", JSON.stringify(jasonObject));
                 $.ajaxSetup({async:true});
             }
-
-            function validate()
-            {
-                if(!valid)
-                    alert("Please select an opinion for every post before submitting!");
-                return valid;
-            }
-
-            function validateData()
-            {
-                var checked=0;
-                $(":radio").map(
-                function()
-                {
-                    if(this.checked)
-                    {                      
-                        checked += 1;
-                    }
-                });
-                if(checked < <%=selected.size()%>)
-                valid = false;
-                else
-                    valid = true;
-            }
-            
+    
             $(document).ready(function(){
                 $('#feedback').on('click',changeSelection);
             });
@@ -108,7 +79,7 @@
     </head>
 
     <body class="zen" >
-        <form method="post" onSubmit="return validate()" id="myform">
+        <form method="post" id="myform">
             <div class="zen-box zen-themed center" style="width:400px">
                 <div class="zen-inner">
                     <div class="zen-header">
@@ -120,6 +91,7 @@
                 <div class="zen-inner">
                     <div class="zen-body">
                         <p><span style="font-weight:bold">Note</span>: If the user images are not displayed properly or not displayed at all, please log in GUS in a separate page and refresh this page.</p>
+                        <p><span style="font-weight:bold">Note</span>: You can skip an item if you cannot decide whether it is interesting or not.</p>
                     </div>
                 </div>
             </div>
