@@ -37,15 +37,15 @@ public class Rest {
     static String client_secret = currentREST.getClient_secret();
     static String tokenURL = currentREST.getTokenURL();
     static HttpClient httpclient = new DefaultHttpClient();
-    static final long oneWeek = 604800000L;
-    static long timeFrame = oneWeek;
+    final long oneWeek = 604800000L;
+    long timeFrame = oneWeek * 2;
     static SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssz");
 
-    static long timeFrame() {
+    long timeFrame() {
         return timeFrame;
     }
 
-    public static void setTimeFrame(int weeks) {
+    public void setTimeFrame(int weeks) {
         timeFrame = oneWeek * weeks;
     }
     String accessToken = null;
@@ -173,12 +173,12 @@ public class Rest {
                 JSONObject j = (JSONObject) jItems.get(jItems.size() - 1);
                 then = Rest.parse(j.get("modifiedDate").toString());
                 URL = json.get("nextPageUrl");
-            } while (URL != null && now - then < Rest.timeFrame());
+            } while (URL != null && now - then < this.timeFrame());
 
             for (Object o : jItems) {
                 JSONObject j = (JSONObject) o;
                 then = Rest.parse(j.get("modifiedDate").toString());
-                if (now - then < Rest.timeFrame()) {
+                if (now - then < this.timeFrame()) {
                     items.put(j.get("id").toString(), j);
                 }
             }
@@ -195,6 +195,85 @@ public class Rest {
         System.out.println("get items finish: " + new Date());
         System.out.println("number of items: " + items.size());
         return items;
+    }
+    
+    
+    //need enough access permission
+    public Map<String, JSONObject> getFeedItems(String userId, int weeks) {
+        System.out.println("get items start: " + new Date());
+        JSONObject json;
+        JSONArray jItems = new JSONArray();
+        this.setTimeFrame(weeks);
+        Map<String, JSONObject> items = new HashMap<String, JSONObject>();
+        try {
+            HttpGet get = new HttpGet();
+            HttpResponse response;
+            get.setHeader("Authorization", accessToken);
+
+            Object URL = "/services/data/v24.0/chatter/feeds/news/"+userId+"/feed-items?pageSize=100";
+            long now = new Date().getTime();
+            long then;
+            do {
+                get.setURI(new URI(this.instanceURL + URL.toString()));
+                response = httpclient.execute(get);
+                json = (JSONObject) JSONValue.parse(new InputStreamReader(response.getEntity().getContent()));              
+                jItems.addAll((JSONArray) json.get("items"));
+                JSONObject j = (JSONObject) jItems.get(jItems.size() - 1);
+                then = Rest.parse(j.get("modifiedDate").toString());
+                URL = json.get("nextPageUrl");
+            } while (URL != null && now - then < this.timeFrame());
+
+            for (Object o : jItems) {
+                JSONObject j = (JSONObject) o;
+                then = Rest.parse(j.get("modifiedDate").toString());
+                if (now - then < this.timeFrame()) {
+                    items.put(j.get("id").toString(), j);
+                }
+            }
+
+        } catch (ParseException ex) {
+            Logger.getLogger(Rest.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(Rest.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClientProtocolException ex) {
+            Logger.getLogger(Rest.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(Rest.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        System.out.println("get items finish: " + new Date());
+        System.out.println("number of items: " + items.size());
+        return items;
+    }
+    
+    public JSONObject getFeedItem(String itemId) {
+        System.out.println("get items start: " + new Date());
+        JSONObject json=null;
+        JSONArray jarray=null;
+        try {
+            HttpGet get = new HttpGet();
+            HttpResponse response;
+            get.setHeader("Authorization", accessToken);
+
+            Object URL = "/services/data/v24.0/chatter/feed-items/"+itemId;
+            get.setURI(new URI(this.instanceURL + URL.toString()));
+            response = httpclient.execute(get);
+            try{
+            json = (JSONObject) JSONValue.parse(new InputStreamReader(response.getEntity().getContent()));
+            }catch(java.lang.ClassCastException e)
+            {
+                response = httpclient.execute(get);
+                jarray = (JSONArray) JSONValue.parse(new InputStreamReader(response.getEntity().getContent()));
+            }
+
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(Rest.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClientProtocolException ex) {
+            Logger.getLogger(Rest.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(Rest.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return json;
     }
 
     private static long parse(String input) throws java.text.ParseException {

@@ -22,17 +22,29 @@ public class Recommender {
     public static Set<String> getRecommendation(String userId, Map<String, JSONObject> candidateItems, int size)
     {
         Set<String> markeditems = MyBDB.getBDB().getMarkedItems(userId);
+
         
         //remove items already marked by the user
         for(String item : markeditems)
             candidateItems.remove(item);
         
+        
         Map<String, Map<String,Double>> candidatesALL = new HashMap<String, Map<String,Double>>();
         Map<String, Map<String,Double>> candidatesNER = new HashMap<String, Map<String,Double>>();
-        
         System.out.println("nlp processing for items start: " + new Date());
         transformCandidates(candidateItems,candidatesALL,candidatesNER);
         System.out.println("nlp processing for items end: " + new Date());
+        
+        //save the items into BDB for analysis
+        for(Map.Entry<String, Map<String,Double>> e: candidatesALL.entrySet())
+        {
+            MyBDB.getBDB().putItems(e.getKey(), e.getValue());
+        }
+        
+        for(Map.Entry<String, Map<String,Double>> e: candidatesNER.entrySet())
+        {
+            MyBDB.getBDB().putItemsNER(e.getKey(), e.getValue());
+        }       
         
         //choose NER or all words
         Map<String, Map<String,Double>> candidates;
@@ -56,7 +68,7 @@ public class Recommender {
     
     private static Map<String, Double> chooseProfile(String userId, boolean useNER) {
         Map<String, Double> profile = null;
-        int choice = (int) (Math.random() * 8); //choice will be one of {0,1,2,3,4,5,6,7}
+        int choice = (int) (Math.random() * 5); //choice will be one of {0,1,2,3,4}
     
         //right now there is only self profile or followee profile
         if (choice > 3) {
@@ -100,8 +112,6 @@ public class Recommender {
         {
             sb.append(((JSONObject)((JSONObject)o).get("body")).get("text").toString());
         }
-        all = new HashMap<String,Double>();
-        ner = new HashMap<String,Double>();
         NLP.process(sb.toString(), all, ner);
     }
 }

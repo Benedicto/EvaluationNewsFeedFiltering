@@ -89,9 +89,20 @@
             </div>
             <div class="zen-box zen-simple center" style="width:400px">
                 <div class="zen-inner">
-                    <div class="zen-body">
-                        <p><span style="font-weight:bold">Note</span>: If the user images are not displayed properly or not displayed at all, please log in GUS in a separate page and refresh this page.</p>
-                        <p><span style="font-weight:bold">Note</span>: You can skip an item if you cannot decide whether it is interesting or not.</p>
+                    <div class="zen-body" id="note">
+                        <p>
+                        <span style="font-weight:bold">Note</span>:<br/>
+                        <ul>
+                            <li>The posts here are selected from your news feed of last two weeks. The system tries to show you the interesting ones first. Please mark each of them as interesting or not so that we can know whether our algorithm is doing a good job.</li>
+                            <li>If you skip an item, it is regarded as "don't know" and will not be shown again.</li>
+                        </ul>
+                        </p>
+                        <p>
+                        <span style="font-weight:bold">Known display issue</span>:<br/>
+                        <ul>
+                            <li>If the user images are not properly displayed or not displayed at all, please log in GUS in a separate page and refresh this page.</li>
+                        </ul>
+                        </p>
                     </div>
                 </div>
             </div>

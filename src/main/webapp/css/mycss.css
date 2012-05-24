@@ -29,3 +29,19 @@ root {
 {
     height: 1.25em;
 }
+
+#note ul { 
+padding:0; 
+margin:0; 
+border:1px; 
+} 
+
+#note li { 
+margin:0; 
+padding:0; 
+border:1px; 
+/* outside required if you have multi-line list items*/ 
+list-style: square outside; 
+/*Should be consistent cross-browser, adjust left margin as required for the design - replace the px with the ems if you still have them*/ 
+margin:15px 15px; 
+} 
