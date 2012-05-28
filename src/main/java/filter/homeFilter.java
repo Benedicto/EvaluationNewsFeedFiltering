@@ -66,7 +66,7 @@ public class homeFilter implements Filter
             }
             
             session.setAttribute("rest", rest);
-            session.setAttribute("candidates", rest.getFeedItems());
+            session.setAttribute("candidates", rest.getFeedItemsAsLinkedList());
         }
         return true;
     }

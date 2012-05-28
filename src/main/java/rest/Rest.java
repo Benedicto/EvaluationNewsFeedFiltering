@@ -11,7 +11,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -51,6 +50,11 @@ public class Rest {
     String accessToken = null;
     String instanceURL = null;
     String myId = null;
+    
+    public String getInstanceURL()
+    {
+        return instanceURL;
+    }
 
     public Rest(String authcode) {
         try {
@@ -180,6 +184,62 @@ public class Rest {
                 then = Rest.parse(j.get("modifiedDate").toString());
                 if (now - then < this.timeFrame()) {
                     items.put(j.get("id").toString(), j);
+                }
+            }
+
+        } catch (ParseException ex) {
+            Logger.getLogger(Rest.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(Rest.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClientProtocolException ex) {
+            Logger.getLogger(Rest.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(Rest.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        System.out.println("get items finish: " + new Date());
+        System.out.println("number of items: " + items.size());
+        return items;
+    }
+    
+    
+    public static class Item
+    {
+        public String id;
+        public JSONObject item;
+        Item(String id, JSONObject item)
+        {
+            this.id = id;
+            this.item = item;
+        }
+    }
+        public LinkedList<Item> getFeedItemsAsLinkedList() {
+        System.out.println("get items start: " + new Date());
+        JSONObject json;
+        JSONArray jItems = new JSONArray();
+        LinkedList<Item> items = new LinkedList<Item>();
+        try {
+            HttpGet get = new HttpGet();
+            HttpResponse response;
+            get.setHeader("Authorization", accessToken);
+
+            Object URL = "/services/data/v24.0/chatter/feeds/news/me/feed-items?pageSize=25";
+            long now = new Date().getTime();
+            long then;
+            do {
+                get.setURI(new URI(this.instanceURL + URL.toString()));
+                response = httpclient.execute(get);
+                json = (JSONObject) JSONValue.parse(new InputStreamReader(response.getEntity().getContent()));
+                jItems.addAll((JSONArray) json.get("items"));
+                JSONObject j = (JSONObject) jItems.get(jItems.size() - 1);
+                then = Rest.parse(j.get("modifiedDate").toString());
+                URL = json.get("nextPageUrl");
+            } while (URL != null && now - then < this.timeFrame());
+
+            for (Object o : jItems) {
+                JSONObject j = (JSONObject) o;
+                then = Rest.parse(j.get("modifiedDate").toString());
+                if (now - then < this.timeFrame()) {
+                    items.add(new Item(j.get("id").toString(), j));
                 }
             }
 

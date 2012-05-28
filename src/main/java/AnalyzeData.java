@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import newsRanking.Ranking;
@@ -20,8 +21,80 @@ import newsRanking.Ranking;
 public class AnalyzeData {
     public static void main(String[] args)
     {
-        oneTimeSelectionTopK();
-        multipleTimeSetSelection();
+        checkOverlap();
+        
+    }
+    
+    public static void checkOverlap()
+    {
+        try {
+            MyBDB bdb = MyBDB.openBDB("/home/zxu/apache-tomcat-7.0.27/data/BerkeleyDB");
+            //get the old items
+            String Joel = "00590000000DmMKAA0";
+            
+            Set<String> markedItems = bdb.getMarkedItems(Joel);
+            Map<String, Map<String,Double>> candidates = new HashMap<String, Map<String,Double>>();
+                    
+            for(String itemId : markedItems)
+            {
+                candidates.put(itemId, bdb.getItem(itemId));
+            }
+                    
+            //run recommendation using different profiles and see the result
+            Set<String> interesting = bdb.getInterestingItems(Joel);
+            Set<String> boring = bdb.getBoringItems(Joel);
+            System.out.println(interesting.size());
+            System.out.println(boring.size());
+            int count=0;
+
+            int size=15;
+            
+            Map<String,Double> strongProfile = bdb.getStrongProfile(Joel);
+            Set<String> selectBestSet1 = Ranking.selectTopK(candidates, strongProfile, size);
+            for(String id : selectBestSet1)
+            {
+                if(interesting.contains(id))
+                    count++;
+            }
+            System.out.println(count);
+            
+            count=0;
+            Map<String,Double> weakProfile = bdb.getWeakProfile(Joel);
+            Set<String> selectBestSet2 = Ranking.selectTopK(candidates, weakProfile, size);
+            for(String id : selectBestSet2)
+            {
+                if(interesting.contains(id))
+                    count++;
+            }
+            System.out.println(count);
+            
+            count=0;
+            Map<String,Double> followeeProfile = bdb.getFolloweeProfile(Joel);
+            Set<String> selectBestSet3 = Ranking.selectTopK(candidates, followeeProfile, size);
+            for(String id : selectBestSet3)
+            {
+                if(interesting.contains(id))
+                    count++;
+            }
+            System.out.println(count);
+            
+            count=0;
+            Set<String> union = new TreeSet<String>();
+            union.addAll(selectBestSet1);
+            union.addAll(selectBestSet3);
+            for(String id : union)
+            {
+                if(interesting.contains(id))
+                    count++;
+            }
+            System.out.println(count);
+
+            
+            bdb.close();
+        } catch (IOException ex) {
+            Logger.getLogger(AnalyzeData.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
     }
     
     public static void oneTimeSelectionTopK()

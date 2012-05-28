@@ -5,14 +5,12 @@
 package recommender;
 
 import bdb.MyBDB;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import newsRanking.Ranking;
 import nlp.NLP;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import rest.Rest.Item;
 
 /**
  *
@@ -64,6 +62,33 @@ public class Recommender {
         Set<String> result = Ranking.selectBestSet(candidates, profile, size);
         System.out.println("select items end: " + new Date());
         return result;
+    }
+    
+    public static List<Item> getNewest(String userId, LinkedList<Item> candidateItems, int k)
+    {
+        Set<String> markeditems = MyBDB.getBDB().getMarkedItems(userId);
+        List<Item> selected = new LinkedList<Item>();
+        
+        //remove items already marked by the user
+        Iterator<Item> iter = candidateItems.iterator();
+        while(iter.hasNext())
+        {
+            Item next = iter.next();
+            if (markeditems.contains(next.id))
+            {
+                iter.remove();
+            }
+                
+        }
+        
+        //select the first k items
+        iter = candidateItems.iterator();
+        while(iter.hasNext() && selected.size() < k)
+        {
+            selected.add(iter.next());
+        }
+        
+        return selected;
     }
     
     private static Map<String, Double> chooseProfile(String userId, boolean useNER) {
