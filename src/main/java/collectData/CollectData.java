@@ -46,6 +46,7 @@ public class CollectData extends HttpServlet {
             else if(value.equals("2"))
                 MyBDB.getBDB().putDontKnow(userId, itemId);
         }
+        System.out.println(items.size()+" new items collected");
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

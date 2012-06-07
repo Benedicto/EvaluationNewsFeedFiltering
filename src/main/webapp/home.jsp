@@ -23,7 +23,7 @@
     //Map<String, JSONObject> candidateItems = (Map<String, JSONObject>) session.getAttribute("candidates");
     //Set<String> selected = Recommender.getRecommendation(userId, candidateItems, 15);
     LinkedList<Item> candidateItems = (LinkedList<Item>) session.getAttribute("candidates");
-    List<Item> selected = Recommender.getNewest(userId, candidateItems, 15);
+    List<Item> selected = Recommender.getNewest(userId, candidateItems, 10);
     if (selected.size() == 0) {
         response.sendRedirect("thankyouverymuch.html");
     }
@@ -97,9 +97,10 @@
                 <div class="zen-inner">
                     <div class="zen-body" id="note">
                         <p>
-                        <span style="font-weight:bold">Note</span>:<br/>
+                        <span style="font-weight:bold">Introduction</span>:<br/>
                         <ul>
-                            <li>Please mark each of them as <span style="font-weight:bold">interesting</span> or <span style="font-weight:bold">not-so-interesting</span>. The result will help us evaluate our recommendation algorithms.</li>
+                            <li>Please mark each post as <span style="font-weight:bold">interesting</span> or <span style="font-weight:bold">not-so-interesting</span>. We aim to build an algorithm that will highlight those interesting ones for you. </li>
+                            <li>The posts are from last two weeks. It may take a longer time if you are following many people and they are very active. You can choose to "Finish" at any point and continue the marking later.</li>
                             <li>If you cannot decide for a specific item, you can skip it. It is then regarded as "don't know" and will not be shown again. Please do not skip too many items.</li>
                         </ul>
                         </p>
@@ -205,7 +206,7 @@
             %>            
             <div class="zen-footer">
                 <input class="zen-btn zen-primaryBtn zen-mhl" type="submit" onclick="more()" value="Next" style="width:150px;"/>
-                <%-- <input class="zen-btn zen-primaryBtn zen-mhl" type="submit" onclick="finish()" value="Finish" style="width:150px;"/> --%>
+                <input class="zen-btn zen-primaryBtn zen-mhl" type="submit" onclick="finish()" value="Finish" style="width:150px;"/>
             </div>
             <br/>
         </form>
